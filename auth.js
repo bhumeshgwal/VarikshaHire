@@ -36,4 +36,18 @@ function verifytoken(req, res, next) {
     }
 }
 
-module.exports = { hashPassword, comparePassword, generatetoken, verifytoken };
+function requireRole(role) {
+    return function roleMiddleware(req, res, next) {
+        verifytoken(req, res, () => {
+            if (!req.user.role) {
+                return res.status(401).json({ error: 'Please log in again to refresh your session' });
+            }
+            if (req.user.role !== role) {
+                return res.status(403).json({ error: 'You do not have permission to access this resource' });
+            }
+            next();
+        });
+    };
+}
+
+module.exports = { hashPassword, comparePassword, generatetoken, verifytoken, requireRole };

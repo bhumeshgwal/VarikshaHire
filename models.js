@@ -27,6 +27,7 @@ const applicationSchema = new mongoose.Schema({
     status: { type: String, default: 'applied' },
     appliedAt: { type: Date, default: Date.now }
 });
+applicationSchema.index({ studentId: 1, jobId: 1 }, { unique: true });
 const Application = mongoose.model('Application', applicationSchema);
 
 const noticeSchema = new mongoose.Schema({

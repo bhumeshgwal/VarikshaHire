@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { getJobs, getNotices, applyToJob, logout } from "../api/api";
+import { getJobs, getNotices, getMyApplications, applyToJob, logout } from "../api/api";
 
-function formatNoticeDate(value) {
+function formatDate(value) {
   if (!value) return "";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "";
@@ -16,14 +16,22 @@ function formatNoticeDate(value) {
 export default function Dashboard({ onLogout }) {
   const [jobs, setJobs] = useState([]);
   const [notices, setNotices] = useState([]);
+  const [applications, setApplications] = useState([]);
+  const [applicationsLoading, setApplicationsLoading] = useState(true);
+  const [applicationsError, setApplicationsError] = useState("");
   const [tab, setTab] = useState("jobs");
   const [sort, setSort] = useState("date");
   const [message, setMessage] = useState("");
   const [msgType, setMsgType] = useState("");
+  const [applyingJobId, setApplyingJobId] = useState("");
 
   useEffect(() => {
     getJobs().then(data => setJobs(data.jobs || []));
     getNotices().then(data => setNotices(data.notices || []));
+    getMyApplications()
+      .then(data => setApplications(data.applications || []))
+      .catch(err => setApplicationsError(err.message))
+      .finally(() => setApplicationsLoading(false));
   }, []);
 
   // sort: [...arr] spreads to new array so we don't mutate state
@@ -40,19 +48,31 @@ export default function Dashboard({ onLogout }) {
 
   async function handleApply(jobId) {
     setMessage("");
+    setApplyingJobId(jobId);
     try {
-      await applyToJob(jobId);
+      const result = await applyToJob(jobId);
+      const appliedJob = jobs.find(job => job._id === jobId);
+      setApplications(current => [
+        { ...result.data, jobId: appliedJob || result.data.jobId },
+        ...current,
+      ]);
       setMessage("Application submitted successfully.");
       setMsgType("ok");
     } catch (err) {
       setMessage(err.message);
       setMsgType("err");
+    } finally {
+      setApplyingJobId("");
     }
   }
 
   function canApply(jobId) {
     // The API only accepts persisted MongoDB job IDs. Demo fallback jobs use IDs like "j1".
     return typeof jobId === "string" && /^[a-f\d]{24}$/i.test(jobId);
+  }
+
+  function hasApplied(jobId) {
+    return applications.some(application => (application.jobId?._id || application.jobId) === jobId);
   }
 
   return (
@@ -68,13 +88,13 @@ export default function Dashboard({ onLogout }) {
       <div className="main">
         {/* Tab bar */}
         <div className="tab-bar">
-          {["jobs", "notices"].map(t => (
+          {["jobs", "applications", "notices"].map(t => (
             <button
               key={t}
               className={`tab-btn${tab === t ? " active" : ""}`}
               onClick={() => setTab(t)}
             >
-              {t.charAt(0).toUpperCase() + t.slice(1)}
+              {t === "applications" ? `Applications (${applications.length})` : t.charAt(0).toUpperCase() + t.slice(1)}
             </button>
           ))}
         </div>
@@ -118,16 +138,46 @@ export default function Dashboard({ onLogout }) {
                   </div>
                 </div>
                 <button
-                  className="apply-btn"
+                  className={`apply-btn${hasApplied(job._id) ? " applied" : ""}`}
                   onClick={() => handleApply(job._id)}
-                  disabled={!canApply(job._id)}
+                  disabled={!canApply(job._id) || hasApplied(job._id) || applicationsLoading || applyingJobId === job._id}
                   title={!canApply(job._id) ? "This demo job is not saved on the server." : undefined}
                 >
-                  {canApply(job._id) ? "Apply" : "Unavailable"}
+                  {hasApplied(job._id) ? "Applied" : applyingJobId === job._id ? "Applying..." : applicationsLoading ? "Checking..." : canApply(job._id) ? "Apply" : "Unavailable"}
                 </button>
               </div>
             ))}
           </div>
+        )}
+
+        {tab === "applications" && (
+          <section className="student-applications">
+            <div className="section-heading">
+              <h2>My applications</h2>
+              <span>{applications.length} total</span>
+            </div>
+            {applicationsError && <p className="msg-error">{applicationsError}</p>}
+            {applicationsLoading ? (
+              <p className="empty">Loading your applications...</p>
+            ) : applications.length ? (
+              <div className="application-list">
+                {applications.map(application => (
+                  <article className="application-card" key={application._id}>
+                    <div className="application-job">
+                      <strong>{application.jobId?.title || "Job unavailable"}</strong>
+                      <span>{application.jobId?.companyName || ""}</span>
+                    </div>
+                    <div className="application-meta">
+                      <span className="application-status">{application.status || "applied"}</span>
+                      <time dateTime={application.appliedAt}>{formatDate(application.appliedAt)}</time>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <p className="empty">You haven’t applied to any jobs yet.</p>
+            )}
+          </section>
         )}
 
         {/* Notices */}
@@ -137,8 +187,8 @@ export default function Dashboard({ onLogout }) {
             {sortedNotices.map(notice => (
               <div key={notice._id} className="notice-card">
                 <p className="notice-msg">{notice.message}</p>
-                {formatNoticeDate(notice.date) && (
-                  <p className="notice-date">{formatNoticeDate(notice.date)}</p>
+                {formatDate(notice.date) && (
+                  <p className="notice-date">{formatDate(notice.date)}</p>
                 )}
               </div>
             ))}

@@ -14,8 +14,13 @@ export default function Login({ onLogin, goToSignup }) {
     try {
       const data = await login(email, password);
       localStorage.setItem("token", data.token);
-      if (data.data?._id) localStorage.setItem("studentId", data.data._id);
-      onLogin(data.data?._id || null);
+      localStorage.setItem("role", data.role);
+      if (data.role === "student" && data.data?._id) {
+        localStorage.setItem("studentId", data.data._id);
+      } else {
+        localStorage.removeItem("studentId");
+      }
+      onLogin(data.role);
     } catch (err) {
       setError(err.message);
     } finally {

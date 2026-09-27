@@ -53,6 +53,7 @@ export function isLoggedIn() {
 export function logout() {
   localStorage.removeItem("token");
   localStorage.removeItem("studentId");
+  localStorage.removeItem("role");
 }
 
 function authHeader() {
@@ -113,5 +114,17 @@ export async function applyToJob(jobId) {
     method: "POST",
     headers: { "Content-Type": "application/json", ...authHeader() },
     body: JSON.stringify({ jobId }),
+  });
+}
+
+export async function getMyApplications() {
+  return safeFetch(`${BASE_URL}/api/application/mine`, {
+    headers: authHeader(),
+  });
+}
+
+export async function getAdminOverview() {
+  return safeFetch(`${BASE_URL}/api/admin/overview`, {
+    headers: authHeader(),
   });
 }

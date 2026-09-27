@@ -327,6 +327,7 @@ select:focus-visible {
 }
 .apply-btn:hover:not(:disabled) { background: var(--forest-dark); transform: translateY(-1px); }
 .apply-btn:disabled { color: #87928b; background: #eef1ee; cursor: not-allowed; }
+.apply-btn.applied:disabled { color: #286142; background: var(--soft-green); }
 
 .notice-card { padding: 1rem 1.1rem; }
 .notice-msg { color: #304238; font-size: 0.91rem; line-height: 1.55; }
@@ -345,6 +346,34 @@ select:focus-visible {
 .flash.msg-ok { color: #24613f; background: #eff8f1; border-color: #d3e9d9; }
 .flash.msg-error { color: #a43d35; background: #fff3f1; border-color: #f2d4d0; }
 
+/* Student application history and admin overview */
+.admin-main { max-width: 960px; }
+.admin-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
+.admin-eyebrow { margin-bottom: 0.4rem; color: #9a7a3c; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; }
+.admin-heading h1 { color: #20382a; font-size: clamp(1.6rem, 4vw, 2.1rem); letter-spacing: -0.04em; }
+.admin-description { margin-top: 0.35rem; color: var(--muted); font-size: 0.9rem; }
+.admin-badge { display: inline-block; margin-left: 0.35rem; padding: 0.2rem 0.48rem; color: var(--forest); background: var(--soft-green); border-radius: 6px; font-size: 0.66rem; vertical-align: 2px; }
+.admin-refresh { padding: 0.55rem 0.85rem; color: var(--forest); background: #fff; border: 1px solid var(--line); border-radius: 9px; font-weight: 600; cursor: pointer; transition: background 160ms ease; }
+.admin-refresh:hover { background: var(--soft-green); }
+.admin-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.8rem; margin-bottom: 1.8rem; }
+.admin-stat { display: flex; flex-direction: column; gap: 0.45rem; padding: 1rem 1.1rem; background: #fff; border: 1px solid var(--line); border-radius: 13px; }
+.admin-stat span { color: var(--muted); font-size: 0.82rem; }
+.admin-stat strong { color: var(--forest-dark); font-size: 1.65rem; line-height: 1; }
+.admin-applications, .student-applications { margin-top: 1rem; }
+.section-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 0.8rem; }
+.section-heading h2 { color: #20382a; font-size: 1rem; letter-spacing: -0.02em; }
+.section-heading > span { color: var(--muted); font-size: 0.78rem; }
+.application-list { display: flex; flex-direction: column; gap: 0.65rem; }
+.application-card { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) auto; align-items: center; gap: 1rem; padding: 1rem; background: #fff; border: 1px solid var(--line); border-radius: 13px; animation: appear 250ms ease both; }
+.application-main { display: flex; align-items: center; gap: 0.7rem; min-width: 0; }
+.applicant-avatar { display: grid; place-items: center; flex: 0 0 36px; width: 36px; height: 36px; color: var(--forest); background: var(--soft-green); border-radius: 11px; font-weight: 700; }
+.application-person { min-width: 0; }
+.application-person h3, .application-job strong { display: block; overflow: hidden; color: #263b2e; font-size: 0.87rem; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.application-person p, .application-job span { display: block; overflow: hidden; margin-top: 0.2rem; color: var(--muted); font-size: 0.77rem; text-overflow: ellipsis; white-space: nowrap; }
+.application-meta { display: flex; align-items: flex-end; flex-direction: column; gap: 0.38rem; color: var(--muted); font-size: 0.76rem; white-space: nowrap; }
+.application-status { padding: 0.2rem 0.5rem; color: #286142; background: var(--soft-green); border-radius: 999px; font-size: 0.7rem; font-weight: 600; text-transform: capitalize; }
+.student-applications .application-card { grid-template-columns: minmax(0, 1fr) auto; }
+
 @keyframes appear {
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
@@ -358,6 +387,14 @@ select:focus-visible {
   .job-card { align-items: flex-start; padding: 0.95rem; }
   .job-title { white-space: normal; }
   .apply-btn { padding: 0.55rem 0.75rem; }
+  .admin-heading { align-items: flex-start; }
+  .admin-stats { gap: 0.5rem; }
+  .admin-stat { padding: 0.8rem; }
+  .admin-stat span { font-size: 0.72rem; }
+  .admin-stat strong { font-size: 1.35rem; }
+  .application-card, .student-applications .application-card { grid-template-columns: minmax(0, 1fr) auto; gap: 0.7rem; }
+  .application-main { grid-column: 1 / -1; }
+  .application-meta { align-items: flex-start; }
 }
 
 @media (prefers-reduced-motion: reduce) {
