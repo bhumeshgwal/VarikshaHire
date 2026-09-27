@@ -92,19 +92,6 @@ app.put('/api/student/:id', verifytoken, async (req, res) => {
     }
 });
 
-app.delete('/api/student/:id', async (req, res) => {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-        return res.status(400).json({ error: 'Invalid ID format' });
-    }
-    try {
-        const deleted = await Student.findByIdAndDelete(req.params.id);
-        if (!deleted) return res.status(404).json({ error: 'Student not found' });
-        res.json({ message: 'Student deleted' });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
 app.get('/api/job', async (req, res) => {
     try {
         const jobs = await Job.find();

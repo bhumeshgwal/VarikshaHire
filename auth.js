@@ -18,16 +18,21 @@ function generatetoken(payload) {
 
 function verifytoken(req, res, next) {
     try {
-        const authHeader = req.headers.authorization;
-        if (!authHeader) {
-            return res.status(401).json({ error: 'No token Provided' });
+        const authHeader = req.get('authorization');
+        const match = authHeader && authHeader.match(/^Bearer\s+(\S+)$/i);
+        if (!match) {
+            return res.status(401).json({ error: 'A Bearer token is required' });
         }
-        const token = authHeader.split(' ')[1];
+        if (!process.env.JWTsec) {
+            console.error('JWTsec is not configured');
+            return res.status(500).json({ error: 'Authentication is not configured' });
+        }
+        const token = match[1];
         const decoded = jwt.verify(token, process.env.JWTsec);
         req.user = decoded;
         next();
     } catch (err) {
-        res.status(401).json({ error: 'Invalid token' });
+        return res.status(401).json({ error: 'Invalid or expired token' });
     }
 }
 
