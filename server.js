@@ -346,6 +346,17 @@ app.post('/api/admin/accounts', verifyOwner, async (req, res) => {
 // ==========================================
 // STUDENT PROFILE
 // ==========================================
+app.put('/api/student/me', verifyStudent, async (req, res) => {
+    const updates = profileUpdates(req.body);
+    if (updates.cgpa !== undefined && (!Number.isFinite(Number(updates.cgpa)) || Number(updates.cgpa) < 0 || Number(updates.cgpa) > 10)) return res.status(400).json({ error: 'CGPA must be between 0 and 10' });
+    if (updates.backlogs !== undefined && (!Number.isInteger(Number(updates.backlogs)) || Number(updates.backlogs) < 0)) return res.status(400).json({ error: 'Backlogs must be zero or more' });
+    try {
+        const student = await Student.findByIdAndUpdate(req.user.id, updates, updateOptions()).select('-password');
+        if (!student) return res.status(404).json({ error: 'Student not found' });
+        res.json({ message: 'Profile updated', student });
+    } catch (err) { res.status(500).json({ error: 'Could not update profile' }); }
+});
+
 app.put('/api/student/:id', requireRole(['student', 'admin']), async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) return res.status(400).json({ error: 'Invalid ID format' });
     if (req.user.role !== 'admin' && req.user.id !== req.params.id) {
@@ -728,17 +739,6 @@ function profileUpdates(body) {
     }
     return updates;
 }
-
-app.put('/api/student/me', verifyStudent, async (req, res) => {
-    const updates = profileUpdates(req.body);
-    if (updates.cgpa !== undefined && (!Number.isFinite(Number(updates.cgpa)) || Number(updates.cgpa) < 0 || Number(updates.cgpa) > 10)) return res.status(400).json({ error: 'CGPA must be between 0 and 10' });
-    if (updates.backlogs !== undefined && (!Number.isInteger(Number(updates.backlogs)) || Number(updates.backlogs) < 0)) return res.status(400).json({ error: 'Backlogs must be zero or more' });
-    try {
-        const student = await Student.findByIdAndUpdate(req.user.id, updates, updateOptions()).select('-password');
-        if (!student) return res.status(404).json({ error: 'Student not found' });
-        res.json({ message: 'Profile updated', student });
-    } catch (err) { res.status(500).json({ error: 'Could not update profile' }); }
-});
 
 app.get('/api/student/people', verifyStudent, async (req, res) => {
     const search = String(req.query.search || '').trim();
