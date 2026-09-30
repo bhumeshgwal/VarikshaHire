@@ -2,6 +2,7 @@ import { useState } from "react";
 import { login } from "../api/api";
 
 export default function Login({ onLogin, goToSignup }) {
+  const [role, setRole] = useState("student");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -12,7 +13,7 @@ export default function Login({ onLogin, goToSignup }) {
     setError("");
     setLoading(true);
     try {
-      const data = await login(email, password);
+      const data = await login(email, password, role);
       localStorage.setItem("token", data.token);
       localStorage.setItem("role", data.role);
       if (data.role === "student" && data.data?._id) {
@@ -35,6 +36,14 @@ export default function Login({ onLogin, goToSignup }) {
         <h1 className="auth-title">Welcome back</h1>
         <p className="auth-sub">Log in to your VrikshaHire account.</p>
 
+        <div className="tab-bar" aria-label="Account type">
+          {["student", "company"].map(item => (
+            <button type="button" key={item} className={`tab-btn ${role === item ? "active" : ""}`} onClick={() => setRole(item)}>
+              {item.charAt(0).toUpperCase() + item.slice(1)}
+            </button>
+          ))}
+        </div>
+
         <form onSubmit={handleSubmit}>
           <div className="field">
             <label>Email</label>
@@ -51,7 +60,7 @@ export default function Login({ onLogin, goToSignup }) {
         </form>
 
         <div className="switch-link">
-          New here? <button onClick={goToSignup}>Create an account</button>
+          <p>New here? <button onClick={goToSignup}>Create an account</button></p>
         </div>
       </div>
     </div>
