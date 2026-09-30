@@ -1,4 +1,10 @@
 {
+  "name": "vrikshahire",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node server.js",
+    "build": "npm install && npm install --prefix vrikshahire-client && npm run build --prefix vrikshahire-client"
+  },
   "dependencies": {
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
