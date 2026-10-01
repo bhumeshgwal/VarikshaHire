@@ -25,17 +25,6 @@
   { "name": "TCS", "email": "tcs@vriksha.com", "password": "Tcs@12345", "website": "https://tcs.com" }
 ]
 
-// =========================================
-// DEMO STUDENTS (20)
-// Password for all: Password@123
-// =========================================
-// Note for Thunder Client:
-// 1. POST to /api/student/signup (Only takes name, email, password, branch, cgpa, backlogs)
-// 2. POST to /api/student/login (Get JWT token)
-// 3. PUT to /api/student/profile with token (Send headline, bio, skills, githubUrl, linkedinUrl, resumeLink, projects)
-
-// If you use `node seedDemoData.js`, it will insert these directly with all profile data at once!
-
 [
   {
     "name": "Aarav Sharma", "email": "aarav.sharma@gmail.com", "password": "Password@123", "branch": "Computer Science", "cgpa": 9.1, "backlogs": 0,
