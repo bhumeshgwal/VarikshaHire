@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { isLoggedIn } from "./api/api";
+import Aurora from "./components/Aurora";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
@@ -15,6 +16,14 @@ export default function App() {
     const role = localStorage.getItem("role");
     return role === "admin" ? "admin" : role === "company" ? "company" : "dashboard";
   });
+
+  // Apply the saved theme on every screen (the account menu only exists after login).
+  useEffect(() => {
+    document.documentElement.classList.toggle("theme-light", localStorage.getItem("theme") === "light");
+  }, []);
+
+  // Every screen change starts at the top, like switching pages in a native app.
+  useEffect(() => { window.scrollTo(0, 0); }, [screen]);
 
   useEffect(() => {
     function handleExpiredSession() {
@@ -33,15 +42,24 @@ export default function App() {
     setScreen("profile");
   }
 
-  if (screen === "signup") return <Signup goToLogin={() => setScreen("login")} />;
+  function renderScreen() {
+    if (screen === "signup") return <Signup goToLogin={() => setScreen("login")} />;
 
-  if (screen === "dashboard") {
-    return <Dashboard onLogout={() => setScreen("login")} onViewProfile={openProfile} onMessages={() => setScreen("messages")} />;
+    if (screen === "dashboard") {
+      return <Dashboard onLogout={() => setScreen("login")} onViewProfile={openProfile} onMessages={() => setScreen("messages")} />;
+    }
+    if (screen === "admin") return <AdminDashboard onLogout={() => setScreen("login")} onViewProfile={openProfile} />;
+    if (screen === "company") return <CompanyDashboard onLogout={() => setScreen("login")} onViewProfile={openProfile} onMessages={() => setScreen("messages")} />;
+    if (screen === "messages") return <MessagesPage onBack={() => setScreen(localStorage.getItem("role") === "company" ? "company" : "dashboard")} />;
+    if (screen === "profile") return <ProfileView studentId={profileId} onBack={() => setScreen(localStorage.getItem("role") === "company" ? "company" : localStorage.getItem("role") === "admin" ? "admin" : "dashboard")} onEdit={localStorage.getItem("studentId") === profileId ? () => setScreen("dashboard") : null} />;
+
+    return <Login onLogin={handleLogin} goToSignup={() => setScreen("signup")} />;
   }
-  if (screen === "admin") return <AdminDashboard onLogout={() => setScreen("login")} onViewProfile={openProfile} />;
-  if (screen === "company") return <CompanyDashboard onLogout={() => setScreen("login")} onViewProfile={openProfile} onMessages={() => setScreen("messages")} />;
-  if (screen === "messages") return <MessagesPage onBack={() => setScreen(localStorage.getItem("role") === "company" ? "company" : "dashboard")} />;
-  if (screen === "profile") return <ProfileView studentId={profileId} onBack={() => setScreen(localStorage.getItem("role") === "company" ? "company" : localStorage.getItem("role") === "admin" ? "admin" : "dashboard")} onEdit={localStorage.getItem("studentId") === profileId ? () => setScreen("dashboard") : null} />;
 
-  return <Login onLogin={handleLogin} goToSignup={() => setScreen("signup")} />;
+  return (
+    <>
+      <Aurora />
+      {renderScreen()}
+    </>
+  );
 }

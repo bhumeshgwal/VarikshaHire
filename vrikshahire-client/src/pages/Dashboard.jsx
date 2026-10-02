@@ -3,6 +3,7 @@ import { getEligibleJobs, getNotices, getMyApplications, applyToJob, getMyProfil
 import Chatbot from "../components/Chatbot";
 import ReportModal from "../components/ReportModal";
 import AccountMenu from "../components/AccountMenu";
+import Brand from "../components/Brand";
 
 function formatDate(value) {
   if (!value) return "";
@@ -113,18 +114,62 @@ export default function Dashboard({ onLogout, onViewProfile, onMessages }) {
   const filteredApps = appFilter === "all" ? applications : applications.filter(a => a.status === appFilter);
   const completeFields = [profile.headline, profile.bio, profile.skills, profile.resumeLink || profile.resumeUrl, profile.githubUrl, profile.linkedinUrl, profile.projects?.length].filter(Boolean).length;
   const completeness = Math.round((completeFields / 7) * 100);
+  const topJob = jobs.find(job => job.isEligible && !hasApplied(job._id));
 
   return (
     <div className="app-wrap">
       <header className="header">
-        <div className="header-logo">
-          <div className="header-dot">V</div>
-          <span className="header-title">VrikshaHire</span>
-        </div>
+        <Brand />
         <AccountMenu onInbox={onMessages} onReport={() => setReportOpen(true)} onLogout={() => { logout(); onLogout(); }} />
       </header>
 
       <div className="main">
+        {!loading && (
+          <>
+            <header className="page-hero">
+              <p className="eyebrow accent">Student dashboard</p>
+              <h1>{profile.name || "Welcome"}<span className="brand-dot">.</span></h1>
+              <p className="hero-sub">{[profile.branch, profile.cgpa !== undefined && profile.cgpa !== null ? `CGPA ${profile.cgpa}` : ""].filter(Boolean).join(" • ")}</p>
+            </header>
+
+            <section className="bento-grid">
+              <div className="bento-card bento-score">
+                <p className="eyebrow">Profile integrity</p>
+                <div>
+                  <div className="big-num">{completeness}<small>%</small></div>
+                  <div className="meter"><i style={{ "--v": `${completeness}%` }} /></div>
+                </div>
+              </div>
+
+              <div className="bento-card bento-match">
+                <div className="bento-top">
+                  <p className="eyebrow accent">Top match</p>
+                  {topJob && <span className="tag match-ok">{topJob.matchScore}% Match</span>}
+                </div>
+                {topJob ? (
+                  <>
+                    <h3>{topJob.title}</h3>
+                    <p className="job-company">{topJob.companyName} • ₹{(topJob.salary / 100000).toFixed(1)} LPA</p>
+                    <button className="btn" onClick={() => handleApply(topJob._id)} disabled={applyingId === topJob._id}>
+                      {applyingId === topJob._id ? "Applying..." : "1-Click Apply"}
+                    </button>
+                  </>
+                ) : <p className="job-company" style={{ marginTop: "0.9rem" }}>No open matches right now. New jobs appear here as soon as they are approved.</p>}
+              </div>
+
+              <div className="bento-card bento-pipe">
+                <p className="eyebrow">Pipeline</p>
+                {applications.length === 0 ? <p className="job-company" style={{ marginTop: "0.6rem" }}>No applications yet.</p> : applications.slice(0, 3).map(app => (
+                  <div className="pipe-row" key={app._id}>
+                    <div><p className="pipe-name">{app.jobId?.companyName || "Company"}</p><p className="job-company">{app.jobId?.title}</p></div>
+                    <span className={`pipe-status status-${app.status}`}>{app.status}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </>
+        )}
+
         <div className="tab-bar">
           {["jobs", "applications", "profile", "people", "notices"].map(t => (
             <button key={t} className={`tab-btn${tab === t ? " active" : ""}`} onClick={() => setTab(t)}>
@@ -239,11 +284,11 @@ export default function Dashboard({ onLogout, onViewProfile, onMessages }) {
 
                 <div className="section-heading" style={{ marginTop: '1.5rem' }}>
                   <h2>Projects</h2>
-                  <button type="button" className="btn btn-sm" onClick={addEmptyProject} style={{ background: '#edf1ed', color: '#17241d' }}>+ Add Project</button>
+                  <button type="button" className="btn btn-sm btn-ghost" onClick={addEmptyProject}>+ Add Project</button>
                 </div>
                 
                 {profile.projects.map((proj, i) => (
-                  <div key={i} style={{ background: '#fbfcfb', padding: '1rem', border: '1px solid #e5eae5', borderRadius: '10px', marginBottom: '1rem' }}>
+                  <div key={i} className="project-box">
                     <div className="form-grid">
                       <div className="field full"><label>Project Title</label><input required value={proj.title} onChange={e => updateProject(i, 'title', e.target.value)} /></div>
                       <div className="field full"><label>Description</label><input value={proj.description} onChange={e => updateProject(i, 'description', e.target.value)} /></div>

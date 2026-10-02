@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getApplicationMessages, sendApplicationMessage } from "../api/api";
 import ReportModal from "./ReportModal";
+import Brand from "./Brand";
 
 export default function ApplicationChat({ application, onClose, embedded = false }) {
   const [messages, setMessages] = useState([]); const [draft, setDraft] = useState(""); const [error, setError] = useState(""); const [sending, setSending] = useState(false); const [reply, setReply] = useState(null); const [reportMessage, setReportMessage] = useState(null);
@@ -20,5 +21,5 @@ export default function ApplicationChat({ application, onClose, embedded = false
     {!studentCanSend && <p className="flash msg-error">Messaging unlocks after the company shortlists you, invites you to interview, or selects you.</p>}
     {error && <p className="msg-error">{error}</p>}<form className="chat-compose" onSubmit={submit}><input value={draft} disabled={!studentCanSend} maxLength="2000" onChange={event => setDraft(event.target.value)} placeholder={studentCanSend ? "Write a message..." : "Messaging is locked until your application advances."} aria-label="Message" /><button className="apply-btn" disabled={sending || !studentCanSend}>{sending ? "Sending" : "Send"}</button></form>
   </section>;
-  return <>{embedded ? <div className="app-wrap"><header className="header"><div className="header-logo"><div className="header-dot">V</div><span className="header-title">Messages</span></div></header><main className="main">{content}</main></div> : <div className="modal-backdrop" role="presentation" onMouseDown={onClose}><div onMouseDown={event => event.stopPropagation()}>{content}</div></div>}{reportMessage && <ReportModal initialType="message_report" messageContext={{ messageId: reportMessage._id, applicationId: application._id }} onClose={() => setReportMessage(null)} />}</>;
+  return <>{embedded ? <div className="app-wrap"><header className="header"><Brand badge="Messages" /></header><main className="main">{content}</main></div> : <div className="modal-backdrop" role="presentation" onMouseDown={onClose}><div onMouseDown={event => event.stopPropagation()}>{content}</div></div>}{reportMessage && <ReportModal initialType="message_report" messageContext={{ messageId: reportMessage._id, applicationId: application._id }} onClose={() => setReportMessage(null)} />}</>;
 }

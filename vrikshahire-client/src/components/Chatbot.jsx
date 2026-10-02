@@ -34,9 +34,10 @@ export default function Chatbot() {
     }
   }
 
+  // All styling now lives in index.css (.vh-chat-*), including the phone bottom-sheet.
   return (
     <>
-      <button className="vh-chat-toggle" type="button" onClick={() => setIsOpen(open => !open)} aria-label={isOpen ? "Close VrikshaBot" : "Open VrikshaBot"}>
+      <button className={`vh-chat-toggle${isOpen ? " open" : ""}`} type="button" onClick={() => setIsOpen(open => !open)} aria-label={isOpen ? "Close VrikshaBot" : "Open VrikshaBot"}>
         {isOpen ? "×" : "Ask VrikshaBot"}
       </button>
       {isOpen && (
@@ -60,17 +61,6 @@ export default function Chatbot() {
           </form>
         </section>
       )}
-      <style>{`
-        .vh-chat-toggle{position:fixed;right:24px;bottom:24px;z-index:1000;border:0;border-radius:999px;padding:15px 20px;background:#24543b;color:#fff;font:600 14px/1.2 sans-serif;box-shadow:0 8px 24px #183c2933;cursor:pointer}
-        .vh-chat-panel{position:fixed;right:24px;bottom:84px;z-index:1000;width:min(370px,calc(100vw - 32px));height:min(520px,calc(100vh - 120px));display:flex;flex-direction:column;overflow:hidden;background:#fff;border:1px solid #e5eae5;border-radius:16px;box-shadow:0 14px 40px #1c342529;color:#17241d;font-family:inherit}
-        .vh-chat-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#24543b;color:#fff}
-        .vh-chat-header div{display:grid;gap:2px}.vh-chat-header small{opacity:.8}.vh-chat-header button{border:0;background:transparent;color:#fff;font-size:24px;cursor:pointer}
-        .vh-chat-messages{flex:1;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:#fbfcfb}
-        .vh-chat-message{max-width:88%;margin:0;padding:10px 12px;border:1px solid #e5eae5;border-radius:12px;background:#fff;font-size:14px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
-        .vh-chat-message.user{align-self:flex-end;background:#edf4ef;border-color:#cce0d3}.vh-chat-message.bot{align-self:flex-start}.vh-chat-typing{margin:0;color:#718078;font-size:13px}
-        .vh-chat-form{display:flex;gap:8px;padding:12px;border-top:1px solid #e5eae5}.vh-chat-form input{min-width:0;flex:1;padding:10px;border:1px solid #dfe6df;border-radius:8px;font:inherit}.vh-chat-form button{padding:0 12px;border:0;border-radius:8px;background:#24543b;color:#fff;font:inherit;cursor:pointer}.vh-chat-form button:disabled{opacity:.5;cursor:not-allowed}
-        @media(max-width:480px){.vh-chat-toggle{right:16px;bottom:16px}.vh-chat-panel{right:16px;bottom:76px}}
-      `}</style>
     </>
   );
 }

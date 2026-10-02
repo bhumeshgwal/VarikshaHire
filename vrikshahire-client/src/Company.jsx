@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { deleteMyJob, getJobApplicants, getMyJobs, logout, postJob, updateApplicationStatus, updateMyJob } from "./api/api";
 import ReportModal from "./components/ReportModal";
 import AccountMenu from "./components/AccountMenu";
+import Brand from "./components/Brand";
 
 const emptyJob = { title: "", salary: "", minCGPA: "0", maxBacklogs: "0", deadline: "", allowedBranches: "CS, IT" };
 function today() { return new Date().toISOString().slice(0, 10); }
@@ -70,7 +71,7 @@ export default function CompanyDashboard({ onLogout, onViewProfile, onMessages }
   }
 
   return <div className="app-wrap">
-    <header className="header"><div className="header-logo"><div className="header-dot">V</div><span className="header-title">VrikshaHire <span className="admin-badge">Company</span></span></div><AccountMenu onInbox={onMessages} onReport={() => setReportOpen(true)} onLogout={() => { logout(); onLogout(); }} /></header>
+    <header className="header"><Brand badge="Company" /><AccountMenu onInbox={onMessages} onReport={() => setReportOpen(true)} onLogout={() => { logout(); onLogout(); }} /></header>
     <main className="main">
       <div className="section-heading"><div><h2>{editingId ? "Edit job" : "Post a job"}</h2><span>New jobs need admin approval before students can view them.</span></div></div>
       {message.text && <div className={`flash ${message.type === "ok" ? "msg-ok" : "msg-error"}`}>{message.text}</div>}
@@ -84,14 +85,14 @@ export default function CompanyDashboard({ onLogout, onViewProfile, onMessages }
           <div className="field full"><label>Allowed branches (comma separated)</label><input value={form.allowedBranches} onChange={event => setForm({ ...form, allowedBranches: event.target.value })} placeholder="CS, IT, EC" /></div>
         </div>
         <button className="btn" type="submit">{editingId ? "Save changes" : "Submit for approval"}</button>
-        {editingId && <button className="btn" type="button" onClick={() => { setEditingId(null); setForm(emptyJob); }} style={{ marginLeft: "0.6rem", background: "#edf1ed", color: "#17241d" }}>Cancel</button>}
+        {editingId && <button className="btn btn-ghost" type="button" onClick={() => { setEditingId(null); setForm(emptyJob); }}>Cancel</button>}
       </form>
       <div className="section-heading" style={{ marginTop: "2rem" }}><h2>My jobs</h2><button className="admin-refresh" onClick={loadJobs}>Refresh</button></div>
       {loading ? <p className="empty">Loading jobs...</p> : <div className="list">
         {jobs.length === 0 && <p className="empty">No jobs posted yet.</p>}
         {jobs.map(job => <article className="job-card" key={job._id}>
           <div className="job-info"><div className="job-title">{job.title}</div><div className="job-tags"><span className="tag tag-amber">₹{(job.salary / 100000).toFixed(1)} LPA</span><span className="tag tag-glass">CGPA {job.minCGPA}</span><span className={`tag ${job.approved ? "match-ok" : "tag-glass"}`}>{job.approved ? "Live" : "Awaiting approval"}</span></div></div>
-          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", justifyContent: "flex-end" }}><button className="admin-refresh" onClick={() => openApplicants(job)}>Applicants</button><button className="admin-refresh" onClick={() => startEdit(job)}>Edit</button><button className="admin-refresh" style={{ color: "#a43d35" }} onClick={() => removeJob(job._id)}>Delete</button></div>
+          <div className="row-actions"><button className="admin-refresh" onClick={() => openApplicants(job)}>Applicants</button><button className="admin-refresh" onClick={() => startEdit(job)}>Edit</button><button className="admin-refresh danger" onClick={() => removeJob(job._id)}>Delete</button></div>
         </article>)}
       </div>}
       {selectedJob && <section style={{ marginTop: "2rem" }}>

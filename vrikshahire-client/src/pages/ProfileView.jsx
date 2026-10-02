@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getStudentProfile } from "../api/api";
+import Brand from "../components/Brand";
 
 export default function ProfileView({ studentId, onBack, onEdit }) {
   const [profile, setProfile] = useState(null);
@@ -13,7 +14,7 @@ export default function ProfileView({ studentId, onBack, onEdit }) {
   if (!profile) return <main className="main"><p className="empty">Loading profile...</p></main>;
 
   return <div className="app-wrap">
-    <header className="header"><div className="header-logo"><div className="header-dot">V</div><span className="header-title">Student profile</span></div><button className="logout-btn" onClick={onBack}>Back</button></header>
+    <header className="header"><Brand badge="Profile" /><button className="logout-btn" onClick={onBack}>← Back</button></header>
     <main className="main">
       <section className="company-form profile-view">
         <div className="application-main"><div className="applicant-avatar profile-avatar">{profile.name?.charAt(0)}</div><div><h1>{profile.name}</h1><p className="job-company">{profile.branch}</p></div></div>

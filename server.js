@@ -170,11 +170,28 @@ function evaluateStudentEligibility(student, job) {
         score += 10;
     }
 
-    // 3. Branch check
-    const allowed = (job.allowedBranches || []).map(b => b.trim().toUpperCase());
+      const allowed = (job.allowedBranches || []).map(b => b.trim().toUpperCase());
     const studentBranch = (student.branch || '').trim().toUpperCase();
-    if (allowed.length > 0 && !allowed.includes(studentBranch)) {
-        reasons.push(`Branch not eligible. Allowed: ${allowed.join(', ')}`);
+    
+    // Check if the student's branch matches ANY of the allowed branches
+    const isBranchAllowed = allowed.length === 0 || allowed.some(b => {
+        if (b === studentBranch) return true;
+        if (studentBranch.includes(b) || b.includes(studentBranch)) return true;
+        
+        // Bidirectional abbreviation matching
+        const isMatch = (s, jobB, full, abbrs) => (s === full && abbrs.includes(jobB)) || (jobB === full && abbrs.includes(s));
+        
+        if (isMatch(studentBranch, b, 'COMPUTER SCIENCE', ['CS', 'CSE', 'BTECH'])) return true;
+        if (isMatch(studentBranch, b, 'INFORMATION TECHNOLOGY', ['IT', 'BTECH'])) return true;
+        if (isMatch(studentBranch, b, 'ELECTRONICS', ['ECE', 'EE', 'BTECH'])) return true;
+        if (isMatch(studentBranch, b, 'MECHANICAL', ['ME', 'MECH', 'BTECH'])) return true;
+        if (isMatch(studentBranch, b, 'CIVIL', ['CE', 'BTECH'])) return true;
+        
+        return false;
+    });
+
+    if (!isBranchAllowed) {
+        reasons.push(`Branch not eligible. Allowed: ${job.allowedBranches.join(', ')}`);
     } else {
         score += 15;
     }
@@ -346,7 +363,9 @@ app.post('/api/admin/accounts', verifyOwner, async (req, res) => {
 // ==========================================
 // STUDENT PROFILE
 // ==========================================
-app.put('/api/student/:id', requireRole(['student', 'admin']), async (req, res) => {
+app.put('/api/student/:id', requireRole(['student', 'admin']), async (req, res, next) => {
+    if (req.params.id === 'me') return next();
+// app.put('/api/student/:id', requireRole(['student', 'admin']), async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) return res.status(400).json({ error: 'Invalid ID format' });
     if (req.user.role !== 'admin' && req.user.id !== req.params.id) {
         return res.status(403).json({ error: 'You can only update your own profile' });
@@ -973,3 +992,4 @@ const PORT = Number(process.env.PORT) || 5000;
 app.listen(PORT, () => {
     console.log(`Server Running on Port ${PORT}`);
 });
+

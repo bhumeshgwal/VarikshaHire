@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { getInbox, getNotices } from "../api/api";
 import ApplicationChat from "../components/ApplicationChat";
+import Brand from "../components/Brand";
 
 function formatDate(value) { return value ? new Intl.DateTimeFormat(undefined, { day: "2-digit", month: "short", year: "numeric" }).format(new Date(value)) : ""; }
 
@@ -12,7 +13,7 @@ export default function MessagesPage({ onBack }) {
   const publicInquiries = useMemo(() => applications.filter(item => !["shortlisted", "interview", "selected"].includes(item.status)), [applications]);
   const items = role === "company" ? (tab === "priority" ? priority : publicInquiries) : applications;
   if (active) return <ApplicationChat application={active} embedded onClose={() => setActive(null)} />;
-  return <div className="app-wrap"><header className="header"><div className="header-logo"><div className="header-dot">V</div><span className="header-title">Inbox</span></div><button className="logout-btn" onClick={onBack}>Back</button></header><main className="main">
+  return <div className="app-wrap"><header className="header"><Brand badge="Inbox" /><button className="logout-btn" onClick={onBack}>← Back</button></header><main className="main">
     <div className="section-heading"><div><h1>Messages</h1><span>{role === "company" ? "Manage applicant conversations." : "Messages unlock after a shortlist, interview, or selection."}</span></div></div>
     {error && <p className="flash msg-error">{error}</p>}
     {role === "company" && <div className="tab-bar"><button className={`tab-btn ${tab === "inbox" ? "active" : ""}`} onClick={() => setTab("inbox")}>Public inquiries ({publicInquiries.length})</button><button className={`tab-btn ${tab === "priority" ? "active" : ""}`} onClick={() => setTab("priority")}>Shortlisted / selected ({priority.length})</button></div>}

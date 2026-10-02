@@ -16,6 +16,8 @@ import {
   getAdminReports,
   updateReportStatus
 } from "../api/api";
+import AccountMenu from "../components/AccountMenu";
+import Brand from "../components/Brand";
 
 function formatDate(value) {
   if (!value) return "";
@@ -155,14 +157,11 @@ export function AdminDashboard({ onLogout, onViewProfile }) {
   return (
     <div className="app-wrap">
       <header className="header">
-        <div className="header-logo">
-          <div className="header-dot">V</div>
-          <span className="header-title">VrikshaHire <span className="admin-badge">Admin</span></span>
-        </div>
-        <button className="logout-btn" onClick={() => { logout(); onLogout(); }}>Log out</button>
+        <Brand badge="Admin" />
+        <AccountMenu onLogout={() => { logout(); onLogout(); }} />
       </header>
 
-      <main className="main admin-main" style={{ maxWidth: '1000px' }}>
+      <main className="main admin-main">
         
         <div className="admin-heading">
           <div>
@@ -200,11 +199,11 @@ export function AdminDashboard({ onLogout, onViewProfile }) {
                   <div className="admin-stat"><span>Total Students</span><strong>{stats.students}</strong></div>
                   <div className="admin-stat">
                     <span>Placed Students</span>
-                    <strong style={{ color: '#24613f' }}>{stats.placed}</strong>
+                    <strong className="ok">{stats.placed}</strong>
                   </div>
                   <div className="admin-stat">
                     <span>Unplaced Students</span>
-                    <strong style={{ color: '#a43d35' }}>{stats.unplaced}</strong>
+                    <strong className="bad">{stats.unplaced}</strong>
                   </div>
                   <div className="admin-stat"><span>Live Companies</span><strong>{stats.companies}</strong></div>
                   <div className="admin-stat"><span>Active Jobs</span><strong>{stats.jobs}</strong></div>
@@ -217,7 +216,7 @@ export function AdminDashboard({ onLogout, onViewProfile }) {
                   {recentApps.slice(0, 15).map(app => (
                     <div className="application-card" key={app._id}>
                       <div className="application-main">
-                        <div className="applicant-avatar">{app.studentId?.name.charAt(0)}</div>
+                        <div className="applicant-avatar">{app.studentId?.name?.charAt(0)}</div>
                         <div className="application-person">
                           <h3><button className="profile-link" onClick={() => onViewProfile(app.studentId?._id)}>{app.studentId?.name}</button></h3>
                           <p>{app.studentId?.branch} • {app.studentId?.email}</p>
@@ -239,20 +238,20 @@ export function AdminDashboard({ onLogout, onViewProfile }) {
 
             {/* APPROVALS TAB */}
             {tab === "approvals" && (
-              <div style={{ display: 'grid', gap: '2rem' }}>
+              <div className="stack">
                 
                 <section>
                   <div className="section-heading"><h2>Pending Companies ({pendingCompanies.length})</h2></div>
-                  {pendingCompanies.length === 0 ? <p className="empty" style={{ background: '#fff', borderRadius: '12px' }}>No pending companies.</p> : (
+                  {pendingCompanies.length === 0 ? <p className="empty">No pending companies.</p> : (
                     <div className="list">
                       {pendingCompanies.map(comp => (
                         <div className="job-card" key={comp._id}>
                           <div className="job-info">
                             <div className="job-title">{comp.name}</div>
                             <div className="job-company">{comp.email}</div>
-                            {comp.website && <a href={comp.website} target="_blank" rel="noreferrer" style={{ fontSize: '0.8rem', color: '#24543b', marginTop: '0.5rem', display: 'inline-block' }}>Visit Website ↗</a>}
+                            {comp.website && <a className="site-link" href={comp.website} target="_blank" rel="noreferrer">Visit Website ↗</a>}
                           </div>
-                          <div style={{ display: 'flex', gap: '0.5rem' }}><button className="apply-btn" onClick={() => handleApproveCompany(comp._id)}>Approve</button><button className="admin-refresh" style={{ color: '#a43d35' }} onClick={() => handleDelete("company", comp._id)}>Reject</button></div>
+                          <div className="row-actions"><button className="apply-btn" onClick={() => handleApproveCompany(comp._id)}>Approve</button><button className="admin-refresh danger" onClick={() => handleDelete("company", comp._id)}>Reject</button></div>
                         </div>
                       ))}
                     </div>
@@ -261,7 +260,7 @@ export function AdminDashboard({ onLogout, onViewProfile }) {
 
                 <section>
                   <div className="section-heading"><h2>Pending Jobs ({pendingJobs.length})</h2></div>
-                  {pendingJobs.length === 0 ? <p className="empty" style={{ background: '#fff', borderRadius: '12px' }}>No pending jobs.</p> : (
+                  {pendingJobs.length === 0 ? <p className="empty">No pending jobs.</p> : (
                     <div className="list">
                       {pendingJobs.map(job => (
                         <div className="job-card" key={job._id}>
@@ -274,7 +273,7 @@ export function AdminDashboard({ onLogout, onViewProfile }) {
                               <span className="tag tag-glass">{job.allowedBranches?.join(", ")}</span>
                             </div>
                           </div>
-                          <div style={{ display: 'flex', gap: '0.5rem' }}><button className="apply-btn" onClick={() => handleApproveJob(job._id)}>Approve</button><button className="admin-refresh" style={{ color: '#a43d35' }} onClick={() => handleDelete("job", job._id)}>Reject</button></div>
+                          <div className="row-actions"><button className="apply-btn" onClick={() => handleApproveJob(job._id)}>Approve</button><button className="admin-refresh danger" onClick={() => handleDelete("job", job._id)}>Reject</button></div>
                         </div>
                       ))}
                     </div>
@@ -289,7 +288,7 @@ export function AdminDashboard({ onLogout, onViewProfile }) {
                 {companies.length === 0 && <p className="empty">No companies registered.</p>}
                 {companies.map(company => <article className="job-card" key={company._id}>
                   <div className="job-info"><div className="job-title">{company.name}</div><div className="job-company">{company.email}</div><div className="job-tags"><span className={`tag ${company.approved ? "match-ok" : "tag-glass"}`}>{company.approved ? "Approved" : "Pending"}</span></div></div>
-                  <div style={{ display: "flex", gap: "0.5rem" }}><button className="admin-refresh" onClick={() => handleEdit("company", company, "website", "Company website")}>Edit website</button><button className="admin-refresh" style={{ color: "#a43d35" }} onClick={() => handleDelete("company", company._id)}>Delete</button></div>
+                  <div className="row-actions"><button className="admin-refresh" onClick={() => handleEdit("company", company, "website", "Company website")}>Edit website</button><button className="admin-refresh danger" onClick={() => handleDelete("company", company._id)}>Delete</button></div>
                 </article>)}
               </div>
             )}
@@ -299,7 +298,7 @@ export function AdminDashboard({ onLogout, onViewProfile }) {
                 {jobs.length === 0 && <p className="empty">No jobs posted.</p>}
                 {jobs.map(job => <article className="job-card" key={job._id}>
                   <div className="job-info"><div className="job-title">{job.title}</div><div className="job-company">{job.companyName}</div><div className="job-tags"><span className={`tag ${job.approved ? "match-ok" : "tag-glass"}`}>{job.approved ? "Approved" : "Pending"}</span><span className="tag tag-glass">{job.status}</span></div></div>
-                  <div style={{ display: "flex", gap: "0.5rem" }}><button className="admin-refresh" onClick={() => handleEdit("job", job, "title", "Job title")}>Edit</button><button className="admin-refresh" style={{ color: "#a43d35" }} onClick={() => handleDelete("job", job._id)}>Delete</button></div>
+                  <div className="row-actions"><button className="admin-refresh" onClick={() => handleEdit("job", job, "title", "Job title")}>Edit</button><button className="admin-refresh danger" onClick={() => handleDelete("job", job._id)}>Delete</button></div>
                 </article>)}
               </div>
             )}
@@ -309,7 +308,7 @@ export function AdminDashboard({ onLogout, onViewProfile }) {
                 {students.length === 0 && <p className="empty">No students registered.</p>}
                 {students.map(student => <article className="job-card" key={student._id}>
                   <div className="job-info"><div className="job-title"><button className="profile-link" onClick={() => onViewProfile(student._id)}>{student.name}</button></div><div className="job-company">{student.branch} · CGPA {student.cgpa} · {student.email}</div></div>
-                  <div style={{ display: "flex", gap: "0.5rem" }}><button className="admin-refresh" onClick={() => handleEdit("student", student, "cgpa", "CGPA (0 to 10)")}>Edit CGPA</button><button className="admin-refresh" style={{ color: "#a43d35" }} onClick={() => handleDelete("student", student._id)}>Delete</button></div>
+                  <div className="row-actions"><button className="admin-refresh" onClick={() => handleEdit("student", student, "cgpa", "CGPA (0 to 10)")}>Edit CGPA</button><button className="admin-refresh danger" onClick={() => handleDelete("student", student._id)}>Delete</button></div>
                 </article>)}
               </div>
             )}
@@ -336,7 +335,6 @@ export function AdminDashboard({ onLogout, onViewProfile }) {
                       placeholder="Announce a placement drive, deadline, or update..."
                       value={newNotice}
                       onChange={e => setNewNotice(e.target.value)}
-                      style={{ width: '100%', padding: '0.8rem', borderRadius: '11px', border: '1px solid #dfe6df', outline: 'none', resize: 'vertical' }}
                     />
                   </div>
                   <button type="submit" className="btn btn-sm" style={{ marginTop: '0.5rem' }}>Broadcast Notice</button>
@@ -346,15 +344,12 @@ export function AdminDashboard({ onLogout, onViewProfile }) {
                 <div className="list">
                   {notices.length === 0 && <p className="empty">No active notices.</p>}
                   {notices.map(notice => (
-                    <div className="notice-card" key={notice._id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div className="notice-card notice-row" key={notice._id}>
                       <div>
                         <p className="notice-msg">{notice.message}</p>
                         <p className="notice-date">{formatDate(notice.date)} • By {notice.author}</p>
                       </div>
-                      <button 
-                        onClick={() => handleDeleteNotice(notice._id)}
-                        style={{ background: 'none', border: 'none', color: '#a43d35', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', padding: '0.5rem' }}
-                      >
+                      <button className="text-button danger" onClick={() => handleDeleteNotice(notice._id)}>
                         Delete
                       </button>
                     </div>
