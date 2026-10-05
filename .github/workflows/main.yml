@@ -39,6 +39,10 @@ jobs:
         working-directory: vrikshahire-client
         run: npx cap sync android
 
+      - name: Make Gradle executable
+        working-directory: vrikshahire-client/android
+        run: chmod +x gradlew
+
       - name: Build APK
         working-directory: vrikshahire-client/android
         run: ./gradlew assembleDebug
