@@ -39,6 +39,10 @@ jobs:
         working-directory: vrikshahire-client
         run: npx cap sync android
 
+      - name: Remove local Windows Java configuration
+        working-directory: vrikshahire-client/android
+        run: sed -i '/org.gradle.java.home=/d' gradle.properties
+
       - name: Make Gradle executable
         working-directory: vrikshahire-client/android
         run: chmod +x gradlew
